@@ -1,8 +1,11 @@
 [package]
 name = "tauri-plugin-clipboard-x"
-version = "0.1.0"
-authors = [ "You" ]
-description = ""
+version = "1.0.0"
+authors = [ "ayangweb" ]
+description = "Supports clipboard change listening and enables reading and writing of various clipboard formats (plain text, rich text, html, images, and files)."
+repository = "https://github.com/ayangweb/tauri-plugin-clipboard-x"
+keywords =  ["tauri", "tauri-plugin", "clipboard", "clipboard-manger"]
+license = "MIT"
 edition = "2021"
 rust-version = "1.77.2"
 exclude = ["/examples", "/dist-js", "/guest-js", "/node_modules"]
@@ -12,8 +15,8 @@ links = "tauri-plugin-clipboard-x"
 tauri = { version = "2" }
 serde = "1"
 thiserror = "2"
-clipboard-rs = "0.2"
 lazy_static = "1"
+clipboard-rs = "0.2"
 fs_extra = "1"
 twox-hash = "2"
 

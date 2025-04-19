@@ -1,8 +1,21 @@
 {
   "name": "tauri-plugin-clipboard-x-api",
-  "version": "0.1.0",
-  "author": "You",
-  "description": "",
+  "version": "1.0.0",
+  "author": "ayangweb",
+  "description": "Supports clipboard change listening and enables reading and writing of various clipboard formats (plain text, rich text, html, images, and files).",
+  "keywords": [
+    "tauri",
+    "tauri-plugin",
+    "clipboard",
+    "clipboard-manger"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ayangweb/tauri-plugin-clipboard-x.git"
+  },
+  "homepage": "https://github.com/ayangweb/tauri-plugin-clipboard-x#readme",
+  "bugs": "https://github.com/ayangweb/tauri-plugin-clipboard-x/issues",
+  "license": "MIT",
   "type": "module",
   "types": "./dist-js/index.d.ts",
   "main": "./dist-js/index.cjs",
