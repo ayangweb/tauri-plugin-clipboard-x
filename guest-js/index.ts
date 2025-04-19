@@ -44,21 +44,25 @@ export interface ReadFile {
   size: number;
 }
 
-interface ReadClipboardItem<T = string> {
+export interface ReadClipboardItem<T extends ClipboardType = ClipboardType> {
   // The type of the clipboard content.
-  type: ClipboardType;
+  type: T;
   // The value of the clipboard content.
-  value: T;
+  value: T extends "files" ? string[] : string;
   // The size or length of the clipboard content.
   count: number;
+  // The width of the image in pixels.
+  width?: number;
+  // The height of the image in pixels.
+  height?: number;
 }
 
 export interface ReadClipboard {
-  text?: ReadClipboardItem;
-  rtf?: ReadClipboardItem;
-  html?: ReadClipboardItem;
-  image?: ReadClipboardItem & Omit<ReadImage, "path" | "size">;
-  files?: ReadClipboardItem<string[]>;
+  text?: ReadClipboardItem<"text">;
+  rtf?: ReadClipboardItem<"rtf">;
+  html?: ReadClipboardItem<"html">;
+  image?: ReadClipboardItem<"image">;
+  files?: ReadClipboardItem<"files">;
 }
 
 export type ClipboardChangeCallback = (result: ReadClipboard) => void;
