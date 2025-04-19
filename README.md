@@ -112,7 +112,7 @@ pnpm tauri dev
 
 ## Thanks
 
-- Use [clipboard-rs](https://github.com/IohannRabeson/file_icon_provider) to get the clipboard content.
+- Use [clipboard-rs](https://github.com/ChurchTao/clipboard-rs) for clipboard operations across different platforms.
 
 ## Who's Use It
 
