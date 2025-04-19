@@ -2,6 +2,8 @@
 
 > This plugin only works on tauri v2, if you need the v1 plugin, feel free to submit a PR!
 
+Supports clipboard change listening and enables reading and writing of various clipboard formats (plain text, rich text, html, images, and files).
+
 ## Platform Support
 
 | Platform | Supported |
