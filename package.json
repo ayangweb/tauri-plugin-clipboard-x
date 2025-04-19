@@ -2,7 +2,7 @@
   "name": "tauri-plugin-clipboard-x-api",
   "version": "1.0.0",
   "author": "ayangweb",
-  "description": "Supports clipboard change listening and enables reading and writing of various clipboard formats (plain text, rich text, html, images, and files).",
+  "description": "Supports clipboard change listening and enables reading and writing of various clipboard formats (plain text, rich text, html, image, and files).",
   "keywords": [
     "tauri",
     "tauri-plugin",
