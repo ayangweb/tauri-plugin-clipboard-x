@@ -311,7 +311,7 @@ pub async fn read_image<R: Runtime>(
 
     let bytes = dynamic_image.as_bytes();
 
-    let hash = XxHash64::oneshot(1024, &bytes);
+    let hash = XxHash64::oneshot(1024, bytes);
 
     let path = save_path.join(format!("{hash}.png"));
 
