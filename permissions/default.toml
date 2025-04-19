@@ -1,0 +1,25 @@
+"$schema" = "schemas/schema.json"
+
+[default]
+description = "Default permissions for the plugin"
+permissions = [
+    "allow-start-listening",
+    "allow-stop-listening",
+    "allow-has-text",
+    "allow-has-rtf",
+    "allow-has-html",
+    "allow-has-image",
+    "allow-has-files",
+    "allow-read-text",
+    "allow-read-rtf",
+    "allow-read-html",
+    "allow-read-image",
+    "allow-read-files",
+    "allow-write-text",
+    "allow-write-rtf",
+    "allow-write-html",
+    "allow-write-image",
+    "allow-write-files",
+    "allow-clear",
+    "allow-get-default-save-image-path",
+]

@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-get-default-save-image-path"
+description = "Enables the get_default_save_image_path command without any pre-configured scope."
+commands.allow = ["get_default_save_image_path"]
+
+[[permission]]
+identifier = "deny-get-default-save-image-path"
+description = "Denies the get_default_save_image_path command without any pre-configured scope."
+commands.deny = ["get_default_save_image_path"]
