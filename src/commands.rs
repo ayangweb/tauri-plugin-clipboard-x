@@ -6,12 +6,12 @@ use fs_extra::dir::get_size;
 use lazy_static::lazy_static;
 use std::{
     fs::create_dir_all,
+    hash::{DefaultHasher, Hash, Hasher},
     path::PathBuf,
     sync::{Arc, Mutex},
     thread::spawn,
 };
 use tauri::{command, AppHandle, Emitter, Manager, Runtime};
-use twox_hash::XxHash64;
 
 lazy_static! {
     static ref CLIPBOARD_MANAGER: ClipboardManager = ClipboardManager::new();
@@ -298,6 +298,8 @@ pub async fn read_image<R: Runtime>(
 
     create_dir_all(&save_path).map_err(|err| err.to_string())?;
 
+    let start = std::time::Instant::now();
+
     let image = CLIPBOARD_MANAGER
         .ctx
         .lock()
@@ -311,7 +313,15 @@ pub async fn read_image<R: Runtime>(
 
     let bytes = dynamic_image.as_bytes();
 
-    let hash = XxHash64::oneshot(1024, bytes);
+    let mut hasher = DefaultHasher::new();
+
+    bytes.hash(&mut hasher);
+
+    let hash = hasher.finish();
+
+    let hash_time = start.elapsed();
+
+    println!("hash time: {:?}", hash_time);
 
     let path = save_path.join(format!("{hash}.png"));
 
