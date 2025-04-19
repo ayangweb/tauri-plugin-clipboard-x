@@ -19,13 +19,15 @@
   "scripts": {
     "build": "rollup -c",
     "prepublishOnly": "pnpm build",
-    "pretest": "pnpm build"
+    "pretest": "pnpm build",
+    "release": "release-it"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.4.1"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.6",
+    "release-it": "^19.0.1",
     "rollup": "^4.40.0",
     "tslib": "^2.8.1",
     "typescript": "^5.8.3"
