@@ -3,19 +3,16 @@ use clipboard_rs::{
     ClipboardWatcher, ClipboardWatcherContext, ContentFormat, RustImageData, WatcherShutdown,
 };
 use fs_extra::dir::get_size;
-use lazy_static::lazy_static;
 use std::{
     fs::create_dir_all,
     hash::{DefaultHasher, Hash, Hasher},
     path::PathBuf,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, OnceLock},
     thread::spawn,
 };
 use tauri::{command, AppHandle, Emitter, Manager, Runtime};
 
-lazy_static! {
-    static ref CLIPBOARD_MANAGER: ClipboardManager = ClipboardManager::new();
-}
+static CLIPBOARD_MANAGER: OnceLock<ClipboardManager> = OnceLock::new();
 
 pub struct ClipboardManager {
     ctx: Arc<Mutex<ClipboardContext>>,
@@ -94,6 +91,11 @@ pub struct ReadFile {
     pub size: u64,
 }
 
+/// Get the global clipboard manager instance.
+fn get_clipboard_manager() -> &'static ClipboardManager {
+    CLIPBOARD_MANAGER.get_or_init(|| ClipboardManager::new())
+}
+
 /// Start listening for clipboard changes.
 ///
 /// # Example
@@ -110,7 +112,7 @@ pub async fn start_listening<R: Runtime>(app_handle: AppHandle<R>) -> Result<(),
 
     let watcher_shutdown = watcher.add_handler(listener).get_shutdown_channel();
 
-    let mut watcher_shutdown_state = CLIPBOARD_MANAGER
+    let mut watcher_shutdown_state = get_clipboard_manager()
         .watcher
         .lock()
         .map_err(|err| err.to_string())?;
@@ -138,7 +140,7 @@ pub async fn start_listening<R: Runtime>(app_handle: AppHandle<R>) -> Result<(),
 ///```
 #[command]
 pub async fn stop_listening() -> Result<(), String> {
-    let mut watcher_shutdown = CLIPBOARD_MANAGER
+    let mut watcher_shutdown = get_clipboard_manager()
         .watcher
         .lock()
         .map_err(|err| err.to_string())?;
@@ -163,7 +165,7 @@ pub async fn stop_listening() -> Result<(), String> {
 /// ```
 #[command]
 pub async fn has_text() -> Result<bool, String> {
-    CLIPBOARD_MANAGER.has(ContentFormat::Text)
+    get_clipboard_manager().has(ContentFormat::Text)
 }
 
 /// Check if the clipboard contains rich text.
@@ -177,7 +179,7 @@ pub async fn has_text() -> Result<bool, String> {
 /// ```
 #[command]
 pub async fn has_rtf() -> Result<bool, String> {
-    CLIPBOARD_MANAGER.has(ContentFormat::Rtf)
+    get_clipboard_manager().has(ContentFormat::Rtf)
 }
 
 /// Check if the clipboard contains html.
@@ -191,7 +193,7 @@ pub async fn has_rtf() -> Result<bool, String> {
 /// ```
 #[command]
 pub async fn has_html() -> Result<bool, String> {
-    CLIPBOARD_MANAGER.has(ContentFormat::Html)
+    get_clipboard_manager().has(ContentFormat::Html)
 }
 
 /// Check if the clipboard contains image.
@@ -205,7 +207,7 @@ pub async fn has_html() -> Result<bool, String> {
 /// ```
 #[command]
 pub async fn has_image() -> Result<bool, String> {
-    CLIPBOARD_MANAGER.has(ContentFormat::Image)
+    get_clipboard_manager().has(ContentFormat::Image)
 }
 
 /// Check if the clipboard contains files.
@@ -219,7 +221,7 @@ pub async fn has_image() -> Result<bool, String> {
 /// ```
 #[command]
 pub async fn has_files() -> Result<bool, String> {
-    CLIPBOARD_MANAGER.has(ContentFormat::Files)
+    get_clipboard_manager().has(ContentFormat::Files)
 }
 
 /// Read the clipboard as plain text.
@@ -233,7 +235,7 @@ pub async fn has_files() -> Result<bool, String> {
 /// ```
 #[command]
 pub async fn read_text() -> Result<String, String> {
-    CLIPBOARD_MANAGER
+    get_clipboard_manager()
         .ctx
         .lock()
         .map_err(|err| err.to_string())?
@@ -252,7 +254,7 @@ pub async fn read_text() -> Result<String, String> {
 /// ```
 #[command]
 pub async fn read_rtf() -> Result<String, String> {
-    CLIPBOARD_MANAGER
+    get_clipboard_manager()
         .ctx
         .lock()
         .map_err(|err| err.to_string())?
@@ -271,7 +273,7 @@ pub async fn read_rtf() -> Result<String, String> {
 /// ```
 #[command]
 pub async fn read_html() -> Result<String, String> {
-    CLIPBOARD_MANAGER
+    get_clipboard_manager()
         .ctx
         .lock()
         .map_err(|err| err.to_string())?
@@ -298,9 +300,7 @@ pub async fn read_image<R: Runtime>(
 
     create_dir_all(&save_path).map_err(|err| err.to_string())?;
 
-    let start = std::time::Instant::now();
-
-    let image = CLIPBOARD_MANAGER
+    let image = get_clipboard_manager()
         .ctx
         .lock()
         .map_err(|err| err.to_string())?
@@ -318,10 +318,6 @@ pub async fn read_image<R: Runtime>(
     bytes.hash(&mut hasher);
 
     let hash = hasher.finish();
-
-    let hash_time = start.elapsed();
-
-    println!("hash time: {:?}", hash_time);
 
     let path = save_path.join(format!("{hash}.png"));
 
@@ -354,7 +350,7 @@ pub async fn read_image<R: Runtime>(
 /// ```
 #[command]
 pub async fn read_files() -> Result<ReadFile, String> {
-    let mut paths = CLIPBOARD_MANAGER
+    let mut paths = get_clipboard_manager()
         .ctx
         .lock()
         .map_err(|err| err.to_string())?
@@ -380,7 +376,7 @@ pub async fn read_files() -> Result<ReadFile, String> {
 /// ```
 #[command]
 pub async fn write_text(text: String) -> Result<(), String> {
-    CLIPBOARD_MANAGER.write(vec![ClipboardContent::Text(text)])
+    get_clipboard_manager().write(vec![ClipboardContent::Text(text)])
 }
 
 /// Write rich text to the clipboard.
@@ -403,7 +399,7 @@ pub async fn write_rtf(text: String, rtf: String) -> Result<(), String> {
         contents.push(ClipboardContent::Text(text))
     }
 
-    CLIPBOARD_MANAGER.write(contents)
+    get_clipboard_manager().write(contents)
 }
 
 /// Write html to the clipboard.
@@ -420,7 +416,7 @@ pub async fn write_rtf(text: String, rtf: String) -> Result<(), String> {
 /// ```
 #[command]
 pub async fn write_html(text: String, html: String) -> Result<(), String> {
-    CLIPBOARD_MANAGER.write(vec![
+    get_clipboard_manager().write(vec![
         ClipboardContent::Text(text),
         ClipboardContent::Html(html),
     ])
@@ -438,7 +434,7 @@ pub async fn write_html(text: String, html: String) -> Result<(), String> {
 pub async fn write_image(image: String) -> Result<(), String> {
     let image = RustImageData::from_path(&image).map_err(|err| err.to_string())?;
 
-    CLIPBOARD_MANAGER.write(vec![ClipboardContent::Image(image)])
+    get_clipboard_manager().write(vec![ClipboardContent::Image(image)])
 }
 
 /// Write files to the clipboard.
@@ -451,7 +447,7 @@ pub async fn write_image(image: String) -> Result<(), String> {
 /// ```
 #[command]
 pub async fn write_files(files: Vec<String>) -> Result<(), String> {
-    CLIPBOARD_MANAGER.write(vec![ClipboardContent::Files(files)])
+    get_clipboard_manager().write(vec![ClipboardContent::Files(files)])
 }
 
 /// Clear the clipboard.
@@ -464,7 +460,7 @@ pub async fn write_files(files: Vec<String>) -> Result<(), String> {
 /// ```
 #[command]
 pub async fn clear() -> Result<(), String> {
-    CLIPBOARD_MANAGER
+    get_clipboard_manager()
         .ctx
         .lock()
         .map_err(|err| err.to_string())?

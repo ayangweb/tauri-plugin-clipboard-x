@@ -15,7 +15,6 @@ links = "tauri-plugin-clipboard-x"
 tauri = { version = "2" }
 serde = "1"
 thiserror = "2"
-lazy_static = "1"
 clipboard-rs = "0.2"
 fs_extra = "1"
 
