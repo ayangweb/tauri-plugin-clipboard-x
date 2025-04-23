@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-clipboard-x"
-version = "2.0.0"
+version = "2.0.1"
 authors = [ "ayangweb" ]
 description = "Supports clipboard change listening and enables reading and writing of various clipboard formats (plain text, rich text, html, image, and files)."
 repository = "https://github.com/ayangweb/tauri-plugin-clipboard-x"
