@@ -322,9 +322,11 @@ pub async fn read_image<R: Runtime>(
     let path = save_path.join(format!("{hash}.png"));
 
     if let Some(path_str) = path.to_str() {
-        image
-            .save_to_path(path_str)
-            .map_err(|err| err.to_string())?;
+        if !path.exists() {
+            image
+                .save_to_path(path_str)
+                .map_err(|err| err.to_string())?;
+        }
 
         let size = get_size(&path).unwrap_or(0);
 
