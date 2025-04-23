@@ -24,8 +24,6 @@ export const COMMAND = {
   CLIPBOARD_CHANGED: "plugin:clipboard-x://clipboard_changed",
 };
 
-export type ClipboardType = "text" | "rtf" | "html" | "image" | "files";
-
 export interface ReadImage {
   // The path of the image.
   path: string;
@@ -44,26 +42,30 @@ export interface ReadFile {
   size: number;
 }
 
-export interface ReadClipboardItem<T extends ClipboardType = ClipboardType> {
-  // The type of the clipboard content.
-  type: T;
-  // The value of the clipboard content.
-  value: T extends "files" ? string[] : string;
-  // The size or length of the clipboard content.
-  count: number;
-  // The width of the image in pixels.
-  width?: number;
-  // The height of the image in pixels.
-  height?: number;
-}
+export type ClipboardContentType = "text" | "rtf" | "html" | "image" | "files";
 
-export interface ReadClipboard {
-  text?: ReadClipboardItem<"text">;
-  rtf?: ReadClipboardItem<"rtf">;
-  html?: ReadClipboardItem<"html">;
-  image?: ReadClipboardItem<"image">;
-  files?: ReadClipboardItem<"files">;
-}
+export type ReadClipboardItem<
+  T extends ClipboardContentType = ClipboardContentType
+> = {
+  type: T;
+  value: T extends "files" ? string[] : string;
+  count: number;
+} & (T extends "image"
+  ? {
+      width: number;
+      height: number;
+    }
+  : {});
+
+export type ReadClipboardItemUnion<
+  T extends ClipboardContentType = ClipboardContentType
+> = {
+  [K in T]: ReadClipboardItem<K>;
+}[T];
+
+export type ReadClipboard = Partial<{
+  [K in ClipboardContentType]: ReadClipboardItem<K>;
+}>;
 
 export type ClipboardChangeCallback = (result: ReadClipboard) => void;
 
