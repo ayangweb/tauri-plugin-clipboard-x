@@ -45,7 +45,7 @@ export interface ReadFile {
 export type ClipboardContentType = "text" | "rtf" | "html" | "image" | "files";
 
 export type ReadClipboardItem<
-  T extends ClipboardContentType = ClipboardContentType
+  T extends ClipboardContentType = ClipboardContentType,
 > = {
   type: T;
   value: T extends "files" ? string[] : string;
@@ -58,7 +58,7 @@ export type ReadClipboardItem<
   : {});
 
 export type ReadClipboardItemUnion<
-  T extends ClipboardContentType = ClipboardContentType
+  T extends ClipboardContentType = ClipboardContentType,
 > = {
   [K in T]: ReadClipboardItem<K>;
 }[T];
@@ -72,6 +72,8 @@ export type ClipboardChangeCallback = (result: ReadClipboard) => void;
 export interface ClipboardChangeOptions {
   // A hook that will be called before reading clipboard content.
   beforeRead?: () => void;
+  // The path to save the image to.
+  saveImagePath?: string;
 }
 
 /**
@@ -225,6 +227,8 @@ export const readHTML = () => {
 /**
  * Read the clipboard as an image.
  *
+ * @param savePath The path to save the image to.
+ *
  * @example
  * ```
  * import { readImage } from 'tauri-plugin-clipboard-x-api';
@@ -233,8 +237,8 @@ export const readHTML = () => {
  * console.log(image); // { path: "/path/to/xxx.png", size: 1024, width: 100, height: 100 }
  * ```
  */
-export const readImage = () => {
-  return invoke<ReadImage>(COMMAND.READ_IMAGE);
+export const readImage = (savePath?: string) => {
+  return invoke<ReadImage>(COMMAND.READ_IMAGE, { savePath });
 };
 
 /**
@@ -360,6 +364,8 @@ export const getDefaultSaveImagePath = () => {
 /**
  * Read all available content from the clipboard.
  *
+ * @param saveImagePath The path to save the image to.
+ *
  * @example
  * ```
  * import { readClipboard } from 'tauri-plugin-clipboard-x-api';
@@ -369,7 +375,7 @@ export const getDefaultSaveImagePath = () => {
  *
 @returns Promise<{@link ReadClipboard}>
  */
-export const readClipboard = async () => {
+export const readClipboard = async (saveImagePath?: string) => {
   const result: ReadClipboard = {};
 
   if (await hasText()) {
@@ -403,7 +409,7 @@ export const readClipboard = async () => {
   }
 
   if (await hasImage()) {
-    const { path, size, ...rest } = await readImage();
+    const { path, size, ...rest } = await readImage(saveImagePath);
 
     result.image = {
       type: "image",
@@ -431,6 +437,7 @@ export const readClipboard = async () => {
  *
  * @param cb The callback function that will be called when clipboard changes.
  * @param options.beforeRead A hook that will be called before reading clipboard content.
+ * @param options.saveImagePath The path to save the image to.
  *
  * @example
  * ```
@@ -445,14 +452,14 @@ export const readClipboard = async () => {
  */
 export const onClipboardChange = (
   cb: ClipboardChangeCallback,
-  options: ClipboardChangeOptions = {}
+  options: ClipboardChangeOptions = {},
 ) => {
-  const { beforeRead } = options;
+  const { beforeRead, saveImagePath } = options;
 
   return listen(COMMAND.CLIPBOARD_CHANGED, async () => {
     beforeRead?.();
 
-    const result = await readClipboard();
+    const result = await readClipboard(saveImagePath);
 
     cb(result);
   });
