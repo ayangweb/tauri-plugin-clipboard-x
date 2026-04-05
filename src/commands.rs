@@ -161,7 +161,9 @@ pub async fn stop_listening() -> Result<(), String> {
 /// use tauri_plugin_clipboard_x::has_text;
 ///
 /// let has = has_text().await?;
-/// println!("{has}"); // true
+/// if has {
+///     println!("Clipboard contains text");
+/// }
 /// ```
 #[command]
 pub async fn has_text() -> Result<bool, String> {
@@ -175,7 +177,9 @@ pub async fn has_text() -> Result<bool, String> {
 /// use tauri_plugin_clipboard_x::has_rtf;
 ///
 /// let has = has_rtf().await?;
-/// println!("{has}"); // true
+/// if has {
+///     println!("Clipboard contains rich text");
+/// }
 /// ```
 #[command]
 pub async fn has_rtf() -> Result<bool, String> {
@@ -189,7 +193,9 @@ pub async fn has_rtf() -> Result<bool, String> {
 /// use tauri_plugin_clipboard_x::has_html;
 ///
 /// let has = has_html().await?;
-/// println!("{has}"); // true
+/// if has {
+///     println!("Clipboard contains HTML");
+/// }
 /// ```
 #[command]
 pub async fn has_html() -> Result<bool, String> {
@@ -203,7 +209,9 @@ pub async fn has_html() -> Result<bool, String> {
 /// use tauri_plugin_clipboard_x::has_image;
 ///
 /// let has = has_image().await?;
-/// println!("{has}"); // true
+/// if has {
+///     println!("Clipboard contains an image");
+/// }
 /// ```
 #[command]
 pub async fn has_image() -> Result<bool, String> {
@@ -217,7 +225,9 @@ pub async fn has_image() -> Result<bool, String> {
 /// use tauri_plugin_clipboard_x::has_files;
 ///
 /// let has = has_files().await?;
-/// println!("{has}"); // true
+/// if has {
+///     println!("Clipboard contains files");
+/// }
 /// ```
 #[command]
 pub async fn has_files() -> Result<bool, String> {
@@ -231,7 +241,7 @@ pub async fn has_files() -> Result<bool, String> {
 /// use tauri_plugin_clipboard_x::read_text;
 ///
 /// let text = read_text().await?;
-/// println!("{read_text}"); // "Hello, world!"
+/// println!("{text}"); // "Hello, world!"
 /// ```
 #[command]
 pub async fn read_text() -> Result<String, String> {
@@ -283,12 +293,18 @@ pub async fn read_html() -> Result<String, String> {
 
 /// Read the clipboard as an image.
 ///
+/// The image is automatically saved to disk. The filename is generated using a hash of the image data
+/// to avoid duplicates when copying the same image multiple times.
+///
+/// # Arguments
+/// * `save_path` - Optional custom path to save the image. If not provided, uses the default app data directory.
+///
 /// # Example
 /// ```
 /// use tauri_plugin_clipboard_x::read_image;
 ///
-/// let image = read_image().await?;
-/// println!("{image}"); // ReadImage { path: "/path/to/xxx.png", size: 1024, width: 100, height: 100 }
+/// let image = read_image(None).await?;
+/// println!("{:?}", image); // ReadImage { path: "/path/to/xxx.png", size: 1024, width: 100, height: 100 }
 /// ```
 #[command]
 pub async fn read_image<R: Runtime>(
@@ -370,6 +386,9 @@ pub async fn read_files() -> Result<ReadFile, String> {
 
 /// Write plain text to the clipboard.
 ///
+/// # Arguments
+/// * `text` - The text to write to the clipboard.
+///
 /// # Example
 /// ```
 /// use tauri_plugin_clipboard_x::write_text;
@@ -383,9 +402,13 @@ pub async fn write_text(text: String) -> Result<(), String> {
 
 /// Write rich text to the clipboard.
 ///
+/// When writing rich text, both plain text and RTF format are required.
+/// On non-macOS platforms, the plain text is automatically included alongside the RTF.
+/// On macOS, only the RTF format is written.
+///
 /// # Arguments
-/// * `text` - The plain text.
-/// * `rtf` - The rich text.
+/// * `text` - The plain text fallback.
+/// * `rtf` - The rich text format.
 ///
 /// # Example
 /// ```
@@ -406,9 +429,12 @@ pub async fn write_rtf(text: String, rtf: String) -> Result<(), String> {
 
 /// Write html to the clipboard.
 ///
+/// Both plain text and HTML format are written to the clipboard to ensure compatibility
+/// with applications that may not support HTML format.
+///
 /// # Arguments
-/// * `text` - The plain text.
-/// * `html` - The html.
+/// * `text` - The plain text fallback.
+/// * `html` - The HTML content.
 ///
 /// # Example
 /// ```
@@ -441,11 +467,14 @@ pub async fn write_image(image: String) -> Result<(), String> {
 
 /// Write files to the clipboard.
 ///
+/// # Arguments
+/// * `files` - A vector of file paths to write to the clipboard.
+///
 /// # Example
 /// ```
 /// use tauri_plugin_clipboard_x::write_files;
 ///
-/// write_files(vec!["/path/to/xxx.txt", "/path/to/xxx"]).await?;
+/// write_files(vec!["/path/to/xxx.txt".to_string(), "/path/to/xxx".to_string()]).await?;
 /// ```
 #[command]
 pub async fn write_files(files: Vec<String>) -> Result<(), String> {
