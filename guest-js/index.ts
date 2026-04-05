@@ -373,7 +373,7 @@ export const getDefaultSaveImagePath = () => {
  * const result = await readClipboard();
  * ```
  *
-@returns Promise<{@link ReadClipboard}>
+ * @returns Promise<{@link ReadClipboard}>
  */
 export const readClipboard = async (saveImagePath?: string) => {
   const result: ReadClipboard = {};
